@@ -2,16 +2,87 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        label {
+            margin-bottom: 10px;
+            display: inline-block;
+            text-align: left;
+            width: 100%;
+        }
+
+        input[type=text], input[type=password] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        input[type=submit] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #5cb85c;
+            color: white;
+            cursor: pointer;
+        }
+
+        input[type=submit]:hover {
+            background-color: #4cae4c;
+        }
+
+        .captcha {
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        // JavaScript 函数用于刷新验证码
+        function refreshCaptcha() {
+            var captchaImage = document.querySelector('.captcha');
+            captchaImage.src = '/captcha?' + Math.random();
+        }
+    </script>
 </head>
 <body>
-<h1>登陆</h1>
+<h1>登录</h1>
 <div th:if="${logoutMessage}">
     <p th:text="${logoutMessage}"></p>
 </div>
 <form th:action="@{/login}" method="post">
     <div><label> 用户名: <input type="text" name="username"/> </label></div>
     <div><label> 密码: <input type="password" name="password"/> </label></div>
+    <div>
+        <label> 验证码: <input type="text" name="captcha" placeholder="输入验证码" required/></label>
+    </div>
+    <div>
+        <img src="/captcha" onclick="refreshCaptcha()" title="点击更换" class="captcha"/>
+    </div>
     <div><input type="submit" value="登录"/></div>
 </form>
+<div th:if="${loginError}">
+    <p th:text="${loginError}"></p>
+</div>
 </body>
 </html>
