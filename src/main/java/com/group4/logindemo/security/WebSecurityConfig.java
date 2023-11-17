@@ -1,5 +1,7 @@
 package com.group4.logindemo.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -12,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
+
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
@@ -19,7 +23,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/h2-console/**").permitAll() // 允许访问H2控制台
                 .antMatchers("/", "/home", "/register").permitAll() // 允许访问这些页面而无需认证
                 .anyRequest().authenticated() // 其他所有请求都需要认证
                 .and()
@@ -28,17 +31,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll() // 允许所有用户访问登录页面
                 .and()
                 .logout()
+                .logoutSuccessUrl("/login?logout")
                 .permitAll(); // 允许所有用户注销
 
-        // 禁用CSRF保护以允许H2控制台的使用
-        http.csrf().disable();
-        // 同时禁用X-Frame-Options Header以允许H2控制台的Frames
-        http.headers().frameOptions().disable();
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        logger.info("Setting up authentication manager with custom user details service");
         auth.userDetailsService(userDetailsService)
-                .passwordEncoder(new BCryptPasswordEncoder()); // 使用BCrypt密码编码器
+                .passwordEncoder(new BCryptPasswordEncoder());
     }
 }
